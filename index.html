@@ -4,39 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Enfrok OS</title>
-  
+  <link href="https://fonts.googleapis.com/css2?family=Arimo&family=Roboto&family=Samsung+One&display=swap" rel="stylesheet">
+  <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    body, html {
+    html, body {
       width: 100%;
       height: 100%;
-    }
-
-    body {
       font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', sans-serif;
       background-color: #111;
       color: white;
       overflow: hidden;
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
 
-    #startup-screen, #conditions-screen, #login-screen, #notice-screen {
+    .screen {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: black;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
+      background-color: black;
       padding: 20px;
     }
 
@@ -46,9 +42,7 @@
       font-size: 1rem;
     }
 
-    .error-text {
-      color: red;
-    }
+    .error-text { color: red; }
 
     #main-os {
       display: none;
@@ -101,42 +95,39 @@
   </style>
 </head>
 <body>
-  <div id="startup-screen">
+  <!-- Startup -->
+  <div id="startup" class="screen">
     <h1>Welcome to EnfrokOS!</h1>
-    <p>Hi there! You're about to set up your personalized OS. Here's what to know before we begin:</p>
-    <ul style="text-align:left; max-width: 600px;">
-      <li>This OS supports Spotify and Wikipedia only in its browser.</li>
-      <li>Search for your favorite artists or songs via the Spotify app.</li>
-      <li>You can log in using any password you set during this setup.</li>
-    </ul>
-    <input type="text" id="setup-name" placeholder="Enter your name">
-    <input type="password" id="setup-password" placeholder="Create a password">
+    <p>This OS supports Spotify & Wikipedia only. Choose a password & name:</p>
+    <input type="text" id="setup-name" placeholder="Your name">
+    <input type="password" id="setup-password" placeholder="Create password">
     <div id="password-error" class="error-text"></div>
     <button onclick="completeSetup()">Continue</button>
   </div>
 
-  <div id="conditions-screen" class="hidden">
+  <!-- Conditions -->
+  <div id="conditions" class="screen hidden">
     <h1>Conditions in EnfrokOS</h1>
-    <p>• Minimising is not available.<br>
-       • Four apps: Spotify, Browser, Settings, Calculator.<br>
-       • Settings is incomplete.<br>
-       • Drag & Drop not available yet.</p>
+    <p>• No minimizing yet<br>• 4 apps: Spotify, Browser, Settings, Calculator<br>• Settings is incomplete<br>• Drag & Drop coming soon</p>
     <button onclick="goToLogin()">Continue</button>
   </div>
 
-  <div id="login-screen" class="hidden">
+  <!-- Login -->
+  <div id="login" class="screen hidden">
     <h1>Welcome to <span id="user-title"></span></h1>
     <input type="password" id="login-password" placeholder="Enter password">
     <div id="login-error" class="error-text"></div>
     <button onclick="checkLogin()">Login</button>
   </div>
 
-  <div id="notice-screen" class="hidden">
+  <!-- Notice -->
+  <div id="notice" class="screen hidden">
     <h1>The Operating System is incomplete</h1>
-    <p>We're updating this OS very soon, as it's a newly fresh site and the coding system is having failure to put extra exciting features.</p>
+    <p>We're updating this OS very soon. New features are under development.</p>
     <button onclick="launchOS()">Continue</button>
   </div>
 
+  <!-- OS Desktop -->
   <div id="main-os">
     <div class="taskbar">
       <img src="icons/calculator.png" class="icon" onclick="openApp('calculator')" title="Calculator">
@@ -155,7 +146,7 @@
     <div id="browser" class="window">
       <div class="window-header">Browser</div>
       <div class="window-body">
-        <input type="text" id="url-input" placeholder="Enter URL">
+        <input type="text" id="url-input" placeholder="Enter full URL e.g. https://...">
         <button onclick="loadURL()">Go</button>
         <iframe id="browser-frame" src="https://www.wikipedia.org" height="300px"></iframe>
         <div id="browser-error" class="error-text"></div>
@@ -165,7 +156,7 @@
     <div id="music" class="window">
       <div class="window-header">Spotify</div>
       <div class="window-body">
-        <iframe src="https://open.spotify.com" height="100%"></iframe>
+        <iframe src="https://open.spotify.com" width="100%" height="100%"></iframe>
       </div>
     </div>
 
@@ -184,57 +175,57 @@
     function completeSetup() {
       const name = document.getElementById("setup-name").value.trim();
       const pass = document.getElementById("setup-password").value.trim();
-      const errorBox = document.getElementById("password-error");
+      const error = document.getElementById("password-error");
       if (pass.length < 6) {
-        errorBox.textContent = "Password should be minimum 6 digits.";
+        error.textContent = "Password should be minimum 6 digits.";
         return;
       }
-      setupPassword = pass;
       setupName = name || "User";
-      document.getElementById("startup-screen").classList.add("hidden");
-      document.getElementById("conditions-screen").classList.remove("hidden");
+      setupPassword = pass;
+      document.getElementById("startup").classList.add("hidden");
+      document.getElementById("conditions").classList.remove("hidden");
     }
 
     function goToLogin() {
-      document.getElementById("conditions-screen").classList.add("hidden");
-      document.getElementById("login-screen").classList.remove("hidden");
+      document.getElementById("conditions").classList.add("hidden");
+      document.getElementById("login").classList.remove("hidden");
       document.getElementById("user-title").textContent = setupName;
     }
 
     function checkLogin() {
       const entered = document.getElementById("login-password").value;
-      const errorBox = document.getElementById("login-error");
+      const error = document.getElementById("login-error");
       if (entered.length < 6) {
-        errorBox.textContent = "Password should be minimum 6 digits.";
+        error.textContent = "Password should be minimum 6 digits.";
         return;
       }
       if (entered !== setupPassword) {
-        errorBox.textContent = "Incorrect password.";
+        error.textContent = "Incorrect password.";
         return;
       }
-      document.getElementById("login-screen").classList.add("hidden");
-      document.getElementById("notice-screen").classList.remove("hidden");
+      document.getElementById("login").classList.add("hidden");
+      document.getElementById("notice").classList.remove("hidden");
     }
 
     function launchOS() {
-      document.getElementById("notice-screen").classList.add("hidden");
+      document.getElementById("notice").classList.add("hidden");
       document.getElementById("main-os").style.display = "block";
     }
 
-    function openApp(appId) {
-      document.getElementById(appId).style.display = "flex";
+    function openApp(id) {
+      document.getElementById(id).style.display = "flex";
     }
 
     function loadURL() {
       const url = document.getElementById("url-input").value;
       const frame = document.getElementById("browser-frame");
-      const errorBox = document.getElementById("browser-error");
+      const error = document.getElementById("browser-error");
       if (!url.startsWith("https://")) {
-        errorBox.textContent = "Add https:// to run or if doesn't work, then website not capable to work";
+        error.textContent = "Add https:// to run or if doesn't work, then website not capable to work";
         return;
       }
       frame.src = url;
-      errorBox.textContent = "";
+      error.textContent = "";
     }
   </script>
 </body>
