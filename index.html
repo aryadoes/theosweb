@@ -12,28 +12,34 @@
       box-sizing: border-box;
     }
 
-    html, body {
+    body, html {
       width: 100%;
       height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', sans-serif;
-      background-color: #111;
+      background-color: #000;
       color: white;
       overflow: hidden;
     }
 
-    .hidden { display: none; }
-
-    .screen {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+    #startup-screen, #login-screen, #notice-screen, #conditions-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.95);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      text-align: center;
-      background-color: black;
+      z-index: 2000;
       padding: 20px;
+      text-align: center;
+      transition: opacity 1s ease;
+    }
+
+    .hidden {
+      display: none;
     }
 
     input, select, button {
@@ -42,20 +48,12 @@
       font-size: 1rem;
     }
 
-    .error-text { color: red; }
-
-    #main-os {
-      display: none;
-      width: 100%;
-      height: 100%;
-    }
-
     .taskbar {
       position: absolute;
       bottom: 0;
       width: 100%;
-      height: 40px;
-      background: rgba(30, 30, 30, 0.85);
+      height: 50px;
+      background-color: rgba(30, 30, 30, 0.9);
       display: flex;
       align-items: center;
       padding: 0 10px;
@@ -64,7 +62,7 @@
     .icon {
       width: 32px;
       height: 32px;
-      margin-right: 10px;
+      margin: 0 8px;
       cursor: pointer;
     }
 
@@ -74,159 +72,167 @@
       left: 100px;
       width: 500px;
       height: 400px;
-      background: white;
+      background: #fff;
       color: black;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
       display: none;
       flex-direction: column;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
 
     .window-header {
-      background: #0078d7;
+      background: #333;
       color: white;
       padding: 10px;
       font-weight: bold;
     }
 
     .window-body {
-      padding: 10px;
       flex: 1;
+      padding: 10px;
+      overflow: auto;
+    }
+
+    .error {
+      color: red;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <!-- Startup -->
-  <div id="startup" class="screen">
-    <h1>Welcome to EnfrokOS!</h1>
-    <p>This OS supports Spotify & Wikipedia only. Choose a password & name:</p>
-    <input type="text" id="setup-name" placeholder="Your name">
-    <input type="password" id="setup-password" placeholder="Create password">
-    <div id="password-error" class="error-text"></div>
-    <button onclick="completeSetup()">Continue</button>
+
+<div id="startup-screen">
+  <h1>Welcome to EnfrokOS!</h1>
+  <p>Set up your device to continue:</p>
+  <input type="text" id="setup-name" placeholder="Enter your name">
+  <input type="password" id="setup-password" placeholder="Create a 6-digit password">
+  <div id="error-msg" class="error"></div>
+  <select id="font-select">
+    <option value="-apple-system, BlinkMacSystemFont, 'San Francisco', sans-serif">Default</option>
+    <option value="'Roboto', sans-serif">Roboto</option>
+    <option value="'Arimo', sans-serif">Arimo</option>
+    <option value="'Times New Roman', serif">Times New Roman</option>
+    <option value="'Samsung One', sans-serif">SamsungOne</option>
+  </select>
+  <button onclick="completeSetup()">Continue</button>
+</div>
+
+<div id="conditions-screen" class="hidden">
+  <h2>Conditions in EnfrokOS</h2>
+  <p>• Minimising is not available<br>• Four apps: Spotify, Browser, Settings, Calculator<br>• Settings is incomplete<br>• Dragging windows is not supported</p>
+  <button onclick="goToLogin()">Continue</button>
+</div>
+
+<div id="login-screen" class="hidden">
+  <h2 id="login-welcome"></h2>
+  <input type="password" id="login-password" placeholder="Enter your password">
+  <div id="login-error" class="error"></div>
+  <button onclick="validateLogin()">Login</button>
+</div>
+
+<div id="notice-screen" class="hidden">
+  <h2>The Operating System is incomplete</h2>
+  <p>We're updating this OS very soon. New features are under development.</p>
+  <button onclick="launchOS()">Continue</button>
+</div>
+
+<!-- OS Desktop Interface -->
+<div id="desktop" class="hidden">
+  <div class="taskbar">
+    <img src="https://img.icons8.com/ios-filled/50/home.png" class="icon" onclick="openWindow('browser')" title="Browser">
+    <img src="https://img.icons8.com/ios-filled/50/calculator.png" class="icon" onclick="openWindow('calc')" title="Calculator">
+    <img src="https://img.icons8.com/ios-filled/50/musical-notes.png" class="icon" onclick="openWindow('spotify')" title="Spotify">
+    <img src="https://img.icons8.com/ios-filled/50/settings.png" class="icon" onclick="openWindow('settings')" title="Settings">
   </div>
 
-  <!-- Conditions -->
-  <div id="conditions" class="screen hidden">
-    <h1>Conditions in EnfrokOS</h1>
-    <p>• No minimizing yet<br>• 4 apps: Spotify, Browser, Settings, Calculator<br>• Settings is incomplete<br>• Drag & Drop coming soon</p>
-    <button onclick="goToLogin()">Continue</button>
-  </div>
-
-  <!-- Login -->
-  <div id="login" class="screen hidden">
-    <h1>Welcome to <span id="user-title"></span></h1>
-    <input type="password" id="login-password" placeholder="Enter password">
-    <div id="login-error" class="error-text"></div>
-    <button onclick="checkLogin()">Login</button>
-  </div>
-
-  <!-- Notice -->
-  <div id="notice" class="screen hidden">
-    <h1>The Operating System is incomplete</h1>
-    <p>We're updating this OS very soon. New features are under development.</p>
-    <button onclick="launchOS()">Continue</button>
-  </div>
-
-  <!-- OS Desktop -->
-  <div id="main-os">
-    <div class="taskbar">
-      <img src="icons/calculator.png" class="icon" onclick="openApp('calculator')" title="Calculator">
-      <img src="icons/browser.png" class="icon" onclick="openApp('browser')" title="Browser">
-      <img src="icons/music.png" class="icon" onclick="openApp('music')" title="Spotify">
-      <img src="icons/settings.png" class="icon" onclick="openApp('settings')" title="Settings">
-    </div>
-
-    <div id="calculator" class="window">
-      <div class="window-header">Calculator</div>
-      <div class="window-body">
-        <iframe src="https://www.desmos.com/scientific" width="100%" height="100%"></iframe>
-      </div>
-    </div>
-
-    <div id="browser" class="window">
-      <div class="window-header">Browser</div>
-      <div class="window-body">
-        <input type="text" id="url-input" placeholder="Enter full URL e.g. https://...">
-        <button onclick="loadURL()">Go</button>
-        <iframe id="browser-frame" src="https://www.wikipedia.org" height="300px"></iframe>
-        <div id="browser-error" class="error-text"></div>
-      </div>
-    </div>
-
-    <div id="music" class="window">
-      <div class="window-header">Spotify</div>
-      <div class="window-body">
-        <iframe src="https://open.spotify.com" width="100%" height="100%"></iframe>
-      </div>
-    </div>
-
-    <div id="settings" class="window">
-      <div class="window-header">Settings</div>
-      <div class="window-body">
-        <p>Settings won't work as it is incomplete.</p>
-      </div>
+  <div id="browser" class="window">
+    <div class="window-header">Browser</div>
+    <div class="window-body">
+      <input type="text" id="url" placeholder="Enter https://wikipedia.org or spotify.com">
+      <button onclick="loadSite()">Go</button>
+      <iframe id="browser-frame" style="width:100%; height:80%;"></iframe>
     </div>
   </div>
 
-  <script>
-    let setupPassword = "";
-    let setupName = "";
+  <div id="calc" class="window">
+    <div class="window-header">Calculator</div>
+    <div class="window-body">
+      <iframe src="https://www.desmos.com/scientific" style="width:100%; height:100%; border:none;"></iframe>
+    </div>
+  </div>
 
-    function completeSetup() {
-      const name = document.getElementById("setup-name").value.trim();
-      const pass = document.getElementById("setup-password").value.trim();
-      const error = document.getElementById("password-error");
-      if (pass.length < 6) {
-        error.textContent = "Password should be minimum 6 digits.";
-        return;
-      }
-      setupName = name || "User";
-      setupPassword = pass;
-      document.getElementById("startup").classList.add("hidden");
-      document.getElementById("conditions").classList.remove("hidden");
+  <div id="spotify" class="window">
+    <div class="window-header">Spotify</div>
+    <div class="window-body">
+      <iframe style="border-radius:12px" src="https://open.spotify.com/embed" width="100%" height="80%" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div id="settings" class="window">
+    <div class="window-header">Settings</div>
+    <div class="window-body">
+      <p>Settings won't work as it is incomplete.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  let userName = "";
+  let password = "";
+
+  function completeSetup() {
+    const nameInput = document.getElementById("setup-name").value.trim();
+    const passInput = document.getElementById("setup-password").value.trim();
+    const font = document.getElementById("font-select").value;
+
+    if (passInput.length < 6) {
+      document.getElementById("error-msg").textContent = "Password should be minimum 6 digits.";
+      return;
     }
 
-    function goToLogin() {
-      document.getElementById("conditions").classList.add("hidden");
-      document.getElementById("login").classList.remove("hidden");
-      document.getElementById("user-title").textContent = setupName;
-    }
+    userName = nameInput || "User";
+    password = passInput;
+    document.body.style.fontFamily = font;
+    document.getElementById("startup-screen").classList.add("hidden");
+    document.getElementById("conditions-screen").classList.remove("hidden");
+  }
 
-    function checkLogin() {
-      const entered = document.getElementById("login-password").value;
-      const error = document.getElementById("login-error");
-      if (entered.length < 6) {
-        error.textContent = "Password should be minimum 6 digits.";
-        return;
-      }
-      if (entered !== setupPassword) {
-        error.textContent = "Incorrect password.";
-        return;
-      }
-      document.getElementById("login").classList.add("hidden");
-      document.getElementById("notice").classList.remove("hidden");
-    }
+  function goToLogin() {
+    document.getElementById("conditions-screen").classList.add("hidden");
+    document.getElementById("login-screen").classList.remove("hidden");
+    document.getElementById("login-welcome").textContent = `Welcome ${userName}`;
+  }
 
-    function launchOS() {
-      document.getElementById("notice").classList.add("hidden");
-      document.getElementById("main-os").style.display = "block";
+  function validateLogin() {
+    const input = document.getElementById("login-password").value;
+    if (input === password) {
+      document.getElementById("login-screen").classList.add("hidden");
+      document.getElementById("notice-screen").classList.remove("hidden");
+    } else {
+      document.getElementById("login-error").textContent = "Wrong password.";
     }
+  }
 
-    function openApp(id) {
-      document.getElementById(id).style.display = "flex";
-    }
+  function launchOS() {
+    document.getElementById("notice-screen").classList.add("hidden");
+    document.getElementById("desktop").classList.remove("hidden");
+  }
 
-    function loadURL() {
-      const url = document.getElementById("url-input").value;
-      const frame = document.getElementById("browser-frame");
-      const error = document.getElementById("browser-error");
-      if (!url.startsWith("https://")) {
-        error.textContent = "Add https:// to run or if doesn't work, then website not capable to work";
-        return;
-      }
+  function openWindow(id) {
+    document.querySelectorAll(".window").forEach(win => win.style.display = "none");
+    document.getElementById(id).style.display = "flex";
+  }
+
+  function loadSite() {
+    const url = document.getElementById("url").value;
+    const frame = document.getElementById("browser-frame");
+    if (url.includes("spotify") || url.includes("wikipedia")) {
       frame.src = url;
-      error.textContent = "";
+    } else {
+      frame.srcdoc = `<p style='color:red;'>Add https:// and try again. If it doesn't work, the website is not supported.</p>`;
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
