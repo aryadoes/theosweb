@@ -18,45 +18,43 @@
     }
 
     body {
-      background-color: #888;
-      background-size: cover;
+      font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', sans-serif;
+      background-color: #111;
+      color: white;
       overflow: hidden;
     }
 
-    #startup-screen, #login-screen, #notice-screen, #conditions-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
-      color: white;
+    .hidden {
+      display: none;
+    }
+
+    #startup-screen, #conditions-screen, #login-screen, #notice-screen {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: black;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 2000;
-      padding: 20px;
       text-align: center;
-      transition: opacity 1s ease;
+      padding: 20px;
     }
 
-    #startup-screen input, #startup-screen button,
-    #login-screen input, #login-screen button,
-    #notice-screen button, #conditions-screen button {
-      margin-top: 10px;
+    input, select, button {
+      margin: 10px;
       padding: 10px;
       font-size: 1rem;
     }
 
     .error-text {
       color: red;
-      font-size: 0.9rem;
-      margin-top: 5px;
     }
 
-    .hidden {
+    #main-os {
       display: none;
+      width: 100%;
+      height: 100%;
     }
 
     .taskbar {
@@ -64,7 +62,7 @@
       bottom: 0;
       width: 100%;
       height: 40px;
-      background-color: rgba(30, 30, 30, 0.85);
+      background: rgba(30, 30, 30, 0.85);
       display: flex;
       align-items: center;
       padding: 0 10px;
@@ -83,48 +81,31 @@
       left: 100px;
       width: 500px;
       height: 400px;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      background: white;
+      color: black;
       display: none;
       flex-direction: column;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
 
     .window-header {
-      background-color: #0078d7;
+      background: #0078d7;
       color: white;
-      padding: 5px 10px;
-      cursor: move;
+      padding: 10px;
+      font-weight: bold;
     }
 
     .window-body {
       padding: 10px;
-      flex-grow: 1;
-    }
-
-    input[type='text'], input[type='password'] {
-      padding: 8px;
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-    }
-
-    button {
-      padding: 10px;
-      font-size: 1rem;
-      margin: 5px 2px;
-    }
-
-    audio, iframe {
-      width: 100%;
+      flex: 1;
     }
   </style>
 </head>
 <body>
-  <!-- Startup Screen -->
   <div id="startup-screen">
     <h1>Welcome to EnfrokOS!</h1>
     <p>Hi there! You're about to set up your personalized OS. Here's what to know before we begin:</p>
-    <ul style="text-align:left; max-width: 600px; margin: 20px auto;">
+    <ul style="text-align:left; max-width: 600px;">
       <li>This OS supports Spotify and Wikipedia only in its browser.</li>
       <li>Search for your favorite artists or songs via the Spotify app.</li>
       <li>You can log in using any password you set during this setup.</li>
@@ -135,43 +116,66 @@
     <button onclick="completeSetup()">Continue</button>
   </div>
 
-  <!-- Conditions Screen -->
   <div id="conditions-screen" class="hidden">
-    <h2>Conditions in EnfrokOS</h2>
-    <ul style="text-align:left; max-width: 600px; margin: 20px auto;">
-      <li>• Minimising on EnfrokOS is currently not available.</li>
-      <li>• There are currently four apps: Spotify, Browser, Settings and Calculator.</li>
-      <li>• Settings app is incomplete and would be functioning soon.</li>
-      <li>• Shifting the apps from one place to another is not available yet.</li>
-    </ul>
-    <button onclick="showLogin()">Continue</button>
+    <h1>Conditions in EnfrokOS</h1>
+    <p>• Minimising is not available.<br>
+       • Four apps: Spotify, Browser, Settings, Calculator.<br>
+       • Settings is incomplete.<br>
+       • Drag & Drop not available yet.</p>
+    <button onclick="goToLogin()">Continue</button>
   </div>
 
-  <!-- Login Screen -->
   <div id="login-screen" class="hidden">
-    <h1 id="login-title">Welcome</h1>
-    <input type="password" id="login-password" placeholder="Enter your password">
+    <h1>Welcome to <span id="user-title"></span></h1>
+    <input type="password" id="login-password" placeholder="Enter password">
     <div id="login-error" class="error-text"></div>
-    <button onclick="loginUser()">Login</button>
+    <button onclick="checkLogin()">Login</button>
   </div>
 
-  <!-- Notice Screen -->
   <div id="notice-screen" class="hidden">
-    <h1 id="os-user-title">The Operating System is incomplete</h1>
+    <h1>The Operating System is incomplete</h1>
     <p>We're updating this OS very soon, as it's a newly fresh site and the coding system is having failure to put extra exciting features.</p>
     <button onclick="launchOS()">Continue</button>
   </div>
 
-  <!-- Final OS UI -->
-  <div id="main-os" class="hidden">
+  <div id="main-os">
     <div class="taskbar">
-      <!-- Icons would go here -->
-      <div class="icon">🧮</div>
-      <div class="icon">🌐</div>
-      <div class="icon">⚙️</div>
-      <div class="icon">🎵</div>
+      <img src="icons/calculator.png" class="icon" onclick="openApp('calculator')" title="Calculator">
+      <img src="icons/browser.png" class="icon" onclick="openApp('browser')" title="Browser">
+      <img src="icons/music.png" class="icon" onclick="openApp('music')" title="Spotify">
+      <img src="icons/settings.png" class="icon" onclick="openApp('settings')" title="Settings">
     </div>
-    <!-- Add windows here later -->
+
+    <div id="calculator" class="window">
+      <div class="window-header">Calculator</div>
+      <div class="window-body">
+        <iframe src="https://www.desmos.com/scientific" width="100%" height="100%"></iframe>
+      </div>
+    </div>
+
+    <div id="browser" class="window">
+      <div class="window-header">Browser</div>
+      <div class="window-body">
+        <input type="text" id="url-input" placeholder="Enter URL">
+        <button onclick="loadURL()">Go</button>
+        <iframe id="browser-frame" src="https://www.wikipedia.org" height="300px"></iframe>
+        <div id="browser-error" class="error-text"></div>
+      </div>
+    </div>
+
+    <div id="music" class="window">
+      <div class="window-header">Spotify</div>
+      <div class="window-body">
+        <iframe src="https://open.spotify.com" height="100%"></iframe>
+      </div>
+    </div>
+
+    <div id="settings" class="window">
+      <div class="window-header">Settings</div>
+      <div class="window-body">
+        <p>Settings won't work as it is incomplete.</p>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -182,47 +186,56 @@
       const name = document.getElementById("setup-name").value.trim();
       const pass = document.getElementById("setup-password").value.trim();
       const errorBox = document.getElementById("password-error");
-
       if (pass.length < 6) {
         errorBox.textContent = "Password should be minimum 6 digits.";
         return;
       }
-
       setupPassword = pass;
       setupName = name || "User";
-
       document.getElementById("startup-screen").classList.add("hidden");
       document.getElementById("conditions-screen").classList.remove("hidden");
     }
 
-    function showLogin() {
+    function goToLogin() {
       document.getElementById("conditions-screen").classList.add("hidden");
-      document.getElementById("login-title").textContent = setupName;
       document.getElementById("login-screen").classList.remove("hidden");
+      document.getElementById("user-title").textContent = setupName;
     }
 
-    function loginUser() {
-      const entered = document.getElementById("login-password").value.trim();
-      const error = document.getElementById("login-error");
-
+    function checkLogin() {
+      const entered = document.getElementById("login-password").value;
+      const errorBox = document.getElementById("login-error");
       if (entered.length < 6) {
-        error.textContent = "Password should be minimum 6 digits.";
+        errorBox.textContent = "Password should be minimum 6 digits.";
         return;
       }
-
-      if (entered === setupPassword) {
-        error.textContent = "";
-        document.getElementById("login-screen").classList.add("hidden");
-        document.getElementById("os-user-title").textContent = setupName + "'s EnfrokOS is incomplete";
-        document.getElementById("notice-screen").classList.remove("hidden");
-      } else {
-        error.textContent = "Incorrect password.";
+      if (entered !== setupPassword) {
+        errorBox.textContent = "Incorrect password.";
+        return;
       }
+      document.getElementById("login-screen").classList.add("hidden");
+      document.getElementById("notice-screen").classList.remove("hidden");
     }
 
     function launchOS() {
       document.getElementById("notice-screen").classList.add("hidden");
-      document.getElementById("main-os").classList.remove("hidden");
+      document.getElementById("main-os").style.display = "block";
+    }
+
+    function openApp(appId) {
+      document.getElementById(appId).style.display = "flex";
+    }
+
+    function loadURL() {
+      const url = document.getElementById("url-input").value;
+      const frame = document.getElementById("browser-frame");
+      const errorBox = document.getElementById("browser-error");
+      if (!url.startsWith("https://")) {
+        errorBox.textContent = "Add https:// to run or if doesn't work, then website not capable to work";
+        return;
+      }
+      frame.src = url;
+      errorBox.textContent = "";
     }
   </script>
 </body>
