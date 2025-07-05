@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enfrok OS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Arimo&family=Roboto&family=Samsung+One&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      background-color: #888;
+      background-size: cover;
+      overflow: hidden;
+    }
+
+    #startup-screen, #login-screen, #notice-screen, #conditions-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      padding: 20px;
+      text-align: center;
+      transition: opacity 1s ease;
+    }
+
+    #startup-screen input, #startup-screen button,
+    #login-screen input, #login-screen button,
+    #notice-screen button, #conditions-screen button {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 1rem;
+    }
+
+    .error-text {
+      color: red;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .taskbar {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 40px;
+      background-color: rgba(30, 30, 30, 0.85);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+    }
+
+    .icon {
+      width: 32px;
+      height: 32px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .window {
+      position: absolute;
+      top: 100px;
+      left: 100px;
+      width: 500px;
+      height: 400px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      display: none;
+      flex-direction: column;
+    }
+
+    .window-header {
+      background-color: #0078d7;
+      color: white;
+      padding: 5px 10px;
+      cursor: move;
+    }
+
+    .window-body {
+      padding: 10px;
+      flex-grow: 1;
+    }
+
+    input[type='text'], input[type='password'] {
+      padding: 8px;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 1rem;
+      margin: 5px 2px;
+    }
+
+    audio, iframe {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Startup Screen -->
+  <div id="startup-screen">
+    <h1>Welcome to EnfrokOS!</h1>
+    <p>Hi there! You're about to set up your personalized OS. Here's what to know before we begin:</p>
+    <ul style="text-align:left; max-width: 600px; margin: 20px auto;">
+      <li>This OS supports Spotify and Wikipedia only in its browser.</li>
+      <li>Search for your favorite artists or songs via the Spotify app.</li>
+      <li>You can log in using any password you set during this setup.</li>
+    </ul>
+    <input type="text" id="setup-name" placeholder="Enter your name">
+    <input type="password" id="setup-password" placeholder="Create a password">
+    <div id="password-error" class="error-text"></div>
+    <button onclick="completeSetup()">Continue</button>
+  </div>
+
+  <!-- Conditions Screen -->
+  <div id="conditions-screen" class="hidden">
+    <h2>Conditions in EnfrokOS</h2>
+    <ul style="text-align:left; max-width: 600px; margin: 20px auto;">
+      <li>• Minimising on EnfrokOS is currently not available.</li>
+      <li>• There are currently four apps: Spotify, Browser, Settings and Calculator.</li>
+      <li>• Settings app is incomplete and would be functioning soon.</li>
+      <li>• Shifting the apps from one place to another is not available yet.</li>
+    </ul>
+    <button onclick="showLogin()">Continue</button>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="hidden">
+    <h1 id="login-title">Welcome</h1>
+    <input type="password" id="login-password" placeholder="Enter your password">
+    <div id="login-error" class="error-text"></div>
+    <button onclick="loginUser()">Login</button>
+  </div>
+
+  <!-- Notice Screen -->
+  <div id="notice-screen" class="hidden">
+    <h1 id="os-user-title">The Operating System is incomplete</h1>
+    <p>We're updating this OS very soon, as it's a newly fresh site and the coding system is having failure to put extra exciting features.</p>
+    <button onclick="launchOS()">Continue</button>
+  </div>
+
+  <!-- Final OS UI -->
+  <div id="main-os" class="hidden">
+    <div class="taskbar">
+      <!-- Icons would go here -->
+      <div class="icon">🧮</div>
+      <div class="icon">🌐</div>
+      <div class="icon">⚙️</div>
+      <div class="icon">🎵</div>
+    </div>
+    <!-- Add windows here later -->
+  </div>
+
+  <script>
+    let setupPassword = "";
+    let setupName = "";
+
+    function completeSetup() {
+      const name = document.getElementById("setup-name").value.trim();
+      const pass = document.getElementById("setup-password").value.trim();
+      const errorBox = document.getElementById("password-error");
+
+      if (pass.length < 6) {
+        errorBox.textContent = "Password should be minimum 6 digits.";
+        return;
+      }
+
+      setupPassword = pass;
+      setupName = name || "User";
+
+      document.getElementById("startup-screen").classList.add("hidden");
+      document.getElementById("conditions-screen").classList.remove("hidden");
+    }
+
+    function showLogin() {
+      document.getElementById("conditions-screen").classList.add("hidden");
+      document.getElementById("login-title").textContent = setupName;
+      document.getElementById("login-screen").classList.remove("hidden");
+    }
+
+    function loginUser() {
+      const entered = document.getElementById("login-password").value.trim();
+      const error = document.getElementById("login-error");
+
+      if (entered.length < 6) {
+        error.textContent = "Password should be minimum 6 digits.";
+        return;
+      }
+
+      if (entered === setupPassword) {
+        error.textContent = "";
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("os-user-title").textContent = setupName + "'s EnfrokOS is incomplete";
+        document.getElementById("notice-screen").classList.remove("hidden");
+      } else {
+        error.textContent = "Incorrect password.";
+      }
+    }
+
+    function launchOS() {
+      document.getElementById("notice-screen").classList.add("hidden");
+      document.getElementById("main-os").classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
